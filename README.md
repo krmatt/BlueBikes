@@ -11,3 +11,4 @@
 - Use Pandas to read, organize, and analyze the data.
   - Understand how often stations are over/understocked.
 - Predict demand at stations.
+- Suggest redistribution strategies.
