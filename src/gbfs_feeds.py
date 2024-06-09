@@ -1,4 +1,5 @@
 import json
+import os
 
 import pandas
 import pandas as pd
@@ -44,7 +45,7 @@ def get_feed_df(feed_name: str) -> pandas.DataFrame:
     if feed_name not in feeds.keys():
         raise ValueError(f"Invalid feed name. Use one of the following feeds: {feeds.keys()}")
 
-    return pd.read_json(requests.get(feeds[feed_name]).text)
+    return pd.DataFrame(json.loads(requests.get(feeds[feed_name]).text)["data"]["stations"])
 
 
 def get_feed_pretty(url: str) -> dict:
@@ -165,6 +166,17 @@ def print_feed_data(*feeds: str) -> None:
             print(version)
 
 
+def update_station_information() -> None:
+    """
+    Update the information about BlueBikes stations.
+    This includes quasi-static information like their name, location, and capacity.
+    It does NOT include information about their current status.
+    :return: None
+    """
+    station_info_df = get_feed_df("station_information")
+    station_info_df.to_csv("data/station-information/station_information.csv", index=False)
+
+
 if __name__ == "__main__":
-    print_feed_data("system_information")
-    # print(get_feed_df("station_information"))
+    # print_feed_data("system_information")
+    update_station_information()
