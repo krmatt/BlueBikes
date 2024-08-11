@@ -2,12 +2,14 @@ import os
 
 import matplotlib
 import matplotlib.pyplot as plt
+import numpy as np
 import pandas as pd
 
 matplotlib.use("Agg")
 
 
-DIR_DATA_RAW = "data/station-status/rpi-raw"
+DIR_DATA_RAW = "data/station-status/raw"
+FILE_STATION_INFO = "data/station-information/station_information.csv"
 
 
 def concat_data():
@@ -84,14 +86,14 @@ def plot_station_stock_over_time(station_ids: list[str]) -> None:
     """
     to_keep = [
         "station_id",
+        "last_reported",
         # "is_renting",
         # "is_returning",
         "num_bikes_available",
-        "num_ebikes_available",
-        "num_bikes_disabled",
+        # "num_ebikes_available",
+        # "num_bikes_disabled",
         "num_docks_available",
-        "num_docks_disabled",
-        "last_reported"
+        # "num_docks_disabled"
     ]
 
     df_full = organize_data(DIR_DATA_RAW)
@@ -111,19 +113,13 @@ def plot_station_stock_over_time(station_ids: list[str]) -> None:
         station_info = get_station_info(station_id)
 
         df_station.plot(x="last_reported",
-                        y=[
-                            "num_bikes_available",
-                            "num_ebikes_available",
-                            "num_docks_available",
-                            "docks_plus_bikes",
-                            "num_docks_disabled",
-                            "num_bikes_disabled"
-                        ],
+                        y=to_keep[2:].extend(["docks_plus_bikes"]),
                         kind="line")
         plt.title(f"Stock at {station_info['name'][0]}")
         plt.xlabel("Time (mm-dd HH)")
         plt.ylabel("Count")
         plt.legend(loc="center left", bbox_to_anchor=(1, 0.5))
+        plt.ylim(ymin=0)
         plt.savefig(f"fig/{station_id}_stock.pdf", bbox_inches="tight")
 
 
@@ -149,6 +145,36 @@ def get_station_info(station_id: str) -> dict:
     return station_info_df.loc[station_info_df["station_id"] == station_id].to_dict(orient="list")
 
 
+def explore_station_info() -> None:
+    """
+    Function for playing around with station information.
+    :return: None
+    """
+    df = pd.read_csv(FILE_STATION_INFO)
+    print(df.columns)
+    print(df["capacity"].max())
+    print(df["capacity"].min())
+    print(df["capacity"].mean())
+    print(df["capacity"].std())
+
+
+def calculate_station_distances(station_id: str) -> dict:
+    """
+    Calculate the distances from a station to all other stations.
+    :param station_id: The origin station.
+    :return: A dict of stations and their distances to the origin station.
+    """
+    station_info_df = pd.read_csv(FILE_STATION_INFO)
+
+    origin_loc = station_info_df.loc[station_info_df["station_id"] == station_id]
+    origin_lat = origin_loc["lat"]
+    origin_lon = origin_loc["lon"]
+
+    # Euclidean distance
+    station_info_df["distance_to_origin"] = np.sqrt(np.square(station_info_df["lat"] - origin_lat) + np.square(station_info_df["lon"] - origin_lon))
+    print(station_info_df["distance_to_origin"])
+
+
 if __name__ == "__main__":
-    plot_station_stock_over_time(["f834a67b-0de8-11e7-991c-3863bb43a7d0"])
-    # print(get_station_info("800bde2c-51df-497c-ac2d-bc3a8c00c164"))
+    # plot_station_stock_over_time(["f606593b-3d07-40f2-bc6d-a0eb96588e44"])
+    calculate_station_distances("f606593b-3d07-40f2-bc6d-a0eb96588e44")
