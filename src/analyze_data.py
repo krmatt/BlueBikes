@@ -15,19 +15,19 @@ FILE_STATION_INFO = "data/station-information/station_information.csv"
 def concat_data():
     df = pd.DataFrame()
 
-    to_drop = ["is_installed",
-               "is_returning",
-               "eightd_has_available_keys",
-               "legacy_id",
-               "num_docks_disabled",
-               "num_scooters_unavailable",
-               "num_scooters_available",
-               "num_docks_available",
-               "num_bikes_disabled"]
+    # to_drop = ["is_installed",
+    #            "is_returning",
+    #            "eightd_has_available_keys",
+    #            "legacy_id",
+    #            "num_docks_disabled",
+    #            "num_scooters_unavailable",
+    #            "num_scooters_available",
+    #            "num_docks_available",
+    #            "num_bikes_disabled"]
 
     for file in os.listdir(DIR_DATA_RAW):
         tmp_df = pd.read_csv(f"{DIR_DATA_RAW}/{file}")
-        tmp_df.drop(columns=to_drop, inplace=True)
+        # tmp_df.drop(columns=to_drop, inplace=True)
 
         df = pd.concat([df, tmp_df])
 
