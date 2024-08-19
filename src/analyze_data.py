@@ -141,7 +141,7 @@ def get_station_info(station_id: str) -> dict:
     :param station_id: The unique ID number of the station.
     :return: A dict of information about the station.
     """
-    station_info_df = pd.read_csv("data/station-information/station_information.csv")
+    station_info_df = pd.read_csv("../data/station-information/station_information.csv")
     return station_info_df.loc[station_info_df["station_id"] == station_id].to_dict(orient="list")
 
 
